@@ -1,7 +1,6 @@
 import './App.css';
 import React from 'react';
 import axios from 'axios';
-import { render } from '@testing-library/react';
 
 //------------Constructor/State handler---------//
 class App extends React.Component {
