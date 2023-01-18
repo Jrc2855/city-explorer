@@ -34,22 +34,32 @@ class App extends React.Component {
       console.log(cityDataFromAxios.data);
       this.setState({
         cityData: cityDataFromAxios.data[0],
-        error: false
+        error: false,
+        cityMap: `https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&markers=icon:tiny-red-cutout|${cityDataFromAxios.data[0].lat},${cityDataFromAxios.data[0].lon}&zoom=1`,
+        
       })
-
+      
     } catch (error) {
       console.log(error);
       this.setState({
         error: true,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
     }
   }
 
 
+  // getWeather = async () => {
+  //   let url = `http://localhost:3001/weather?searchQuery=${this.state.city}&format=json`
+  //   let results = await axios.get(url);
+  //   console.log(results);
+  // }
+
+
   //-------------Render Function------------//
 
   render() {
+    // {this.getWeather()};
     return (
       <>
         <h1>City Explorer</h1>
