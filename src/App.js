@@ -1,6 +1,7 @@
 import './App.css';
 import React from 'react';
 import axios from 'axios';
+// import Weather from './Weather'
 
 //------------Constructor/State handler---------//
 class App extends React.Component {
@@ -10,7 +11,8 @@ class App extends React.Component {
       city: '',
       cityData: [],
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      weatherData: []
     }
   }
 
@@ -32,13 +34,20 @@ class App extends React.Component {
       console.log(url);
       let cityDataFromAxios = await axios.get(url)
       console.log(cityDataFromAxios.data);
+      let lat = cityDataFromAxios.data[0].lat;
+      let lon = cityDataFromAxios.data[0].lon;
+      console.log(lat, lon);
+
+      this.getWeather(lat, lon);
+
+
       this.setState({
         cityData: cityDataFromAxios.data[0],
         error: false,
         cityMap: `https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&markers=icon:tiny-red-cutout|${cityDataFromAxios.data[0].lat},${cityDataFromAxios.data[0].lon}&zoom=1`,
-        
+
       })
-      
+
     } catch (error) {
       console.log(error);
       this.setState({
@@ -49,17 +58,27 @@ class App extends React.Component {
   }
 
 
-  // getWeather = async () => {
-  //   let url = `http://localhost:3001/weather?searchQuery=${this.state.city}&format=json`
-  //   let results = await axios.get(url);
-  //   console.log(results);
-  // }
+  getWeather = async (lat, lon) => {
+    try {
+      let url = `${process.env.REACT_APP_SERVER}/weather?searchQuery=${this.state.city}&lat=${lat}&lon=${lon}`
+      let weatherDataFromAxios = await axios.get(url);
+      console.log(weatherDataFromAxios);
+
+      this.setState({
+        weatherData: weatherDataFromAxios.data,
+      })
+
+    } catch (error) {
+      console.log(error.Message);
+    }
+  }
 
 
   //-------------Render Function------------//
 
   render() {
     // {this.getWeather()};
+    console.log(this.state.weatherData[0]);
     return (
       <>
         <h1>City Explorer</h1>
@@ -77,13 +96,19 @@ class App extends React.Component {
         }
         {
           this.state.error
-          ? <p>{this.state.errorMessage}</p>
-          : <p>Latitude: {this.state.cityData.lat}</p>
+            ? <p>{this.state.errorMessage}</p>
+            : <p>Latitude: {this.state.cityData.lat}</p>
         }
         {
           this.state.error
-          ? <p>{this.state.errorMessage}</p>
-          : <p>Longitude: {this.state.cityData.lon}</p>
+            ? <p>{this.state.errorMessage}</p>
+            : <p>Longitude: {this.state.cityData.lon}</p>
+        }
+        this.state.weatherData.map()
+        {
+          this.state.weatherData 
+          ? <p>Weather Data: {this.state.weatherData.date}</p>
+          : <p>test</p>
         }
       </>
     )
