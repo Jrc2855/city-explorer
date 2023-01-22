@@ -10,9 +10,12 @@ class App extends React.Component {
     this.state = {
       city: '',
       cityData: [],
+      cityMap: '',
+      weatherData1: {},
+      weatherData2: {},
+      weatherData3: {},
       error: false,
       errorMessage: '',
-      weatherData: []
     }
   }
 
@@ -25,29 +28,27 @@ class App extends React.Component {
     })
   }
 
+  
   getCityData = async (e) => {
     e.preventDefault();
-
     try {
       let url = `https://us1.locationiq.com/v1/search.php?
-    key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&q=${this.state.city}&format=json`
+      key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&q=${this.state.city}&format=json`
       console.log(url);
       let cityDataFromAxios = await axios.get(url)
       console.log(cityDataFromAxios.data);
       let lat = cityDataFromAxios.data[0].lat;
       let lon = cityDataFromAxios.data[0].lon;
-      console.log(lat, lon);
-
+      
       this.getWeather(lat, lon);
-
-
+      
       this.setState({
         cityData: cityDataFromAxios.data[0],
         error: false,
-        cityMap: `https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&markers=icon:tiny-red-cutout|${cityDataFromAxios.data[0].lat},${cityDataFromAxios.data[0].lon}&zoom=1`,
-
+        cityMap: `https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_LOCATIONIQ_API_KEY}&center=${lat},${lon}&zoom=12&size=400x400&format=png`,
+        
       })
-
+      
     } catch (error) {
       console.log(error);
       this.setState({
@@ -56,18 +57,20 @@ class App extends React.Component {
       })
     }
   }
-
-
+  
   getWeather = async (lat, lon) => {
+    
     try {
       let url = `${process.env.REACT_APP_SERVER}/weather?searchQuery=${this.state.city}&lat=${lat}&lon=${lon}`
       let weatherDataFromAxios = await axios.get(url);
       console.log(weatherDataFromAxios);
-
+      
       this.setState({
-        weatherData: weatherDataFromAxios.data,
+        weatherData1: weatherDataFromAxios.data[0],
+        weatherData2: weatherDataFromAxios.data[1],
+        weatherData3: weatherDataFromAxios.data[2],
       })
-
+      
     } catch (error) {
       console.log(error.Message);
     }
@@ -77,8 +80,6 @@ class App extends React.Component {
   //-------------Render Function------------//
 
   render() {
-    // {this.getWeather()};
-    console.log(this.state.weatherData[0]);
     return (
       <>
         <h1>City Explorer</h1>
@@ -104,11 +105,34 @@ class App extends React.Component {
             ? <p>{this.state.errorMessage}</p>
             : <p>Longitude: {this.state.cityData.lon}</p>
         }
-        this.state.weatherData.map()
         {
-          this.state.weatherData 
-          ? <p>Weather Data: {this.state.weatherData.date}</p>
-          : <p>test</p>
+          Object.keys(this.state.weatherData1).length>0 
+          && 
+          <>
+          <p>Weather Description: {this.state.weatherData1.description}</p>
+          <p>Search Date: {this.state.weatherData1.date}</p>
+          </>
+        }
+        {
+          Object.keys(this.state.weatherData2).length>0 
+          && 
+          <>
+          <p>Weather Description: {this.state.weatherData2.description}</p>
+          <p>Search Date: {this.state.weatherData2.date}</p>
+          </>
+        }
+        {
+          Object.keys(this.state.weatherData3).length>0 
+          && 
+          <>
+          <p>Weather Description: {this.state.weatherData3.description}</p>
+          <p>Search Date: {this.state.weatherData3.date}</p>
+          </>
+        }
+        {
+          this.state.cityMap 
+          ? <img src = {this.state.cityMap} alt = 'map'/>
+          : null
         }
       </>
     )
